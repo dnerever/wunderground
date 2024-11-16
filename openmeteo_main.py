@@ -14,19 +14,30 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 
 url = 'httpS://api.open-meteo.com/v1/forecast'
 params = {
-    'latitude': 52.52,
-    'longitude': 13.41,
+    'latitude': 40.01,
+    'longitude': -105.27,
+    'current': ['temperature_2m', 'wind_direction_10m', 'wind_gusts_10m'],
     'hourly': 'temperature_2m'
 }
 responses = openmeteo.weather_api(url, params=params)
 
-reponse = responses[0]
-# print(f'Cordinates {response.Latitude()} *N {response.Longitutde()} E')
+response = responses[0]
+print(f'Cordinates {response.Latitude()}°N {response.Longitude()}°E')
 # print(f'Elevation {response.Elevation()} m asl')
 # print(f'Timezone {response.Timezone()} {response.TimezoneAbbreviation()}')
 # print(f'Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s')
 
-hourly = responses[0].Hourly()
+current = response.Current()
+current_temperature_2m = current.Variables(0).Value()
+current_wind_direction_10m = current.Variables(1).Value()
+current_wind_gusts_10m = current.Variables(2).Value()
+
+print(f'Current time {current.Time()}')
+print(f'Current temperature_2m {current_temperature_2m}')
+print(f'Current wind_direction_10m {current_wind_direction_10m}')
+print(f'Current wind_gusts_10m {current_wind_gusts_10m}')
+
+hourly = response.Hourly()
 hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
 
 hourly_data = {'date': pd.date_range(
@@ -35,7 +46,7 @@ hourly_data = {'date': pd.date_range(
     freq = pd.Timedelta(seconds = hourly.Interval()),
     inclusive = 'left'
 )}
-hourly_data["temperature_2m"] = hourly_temperature_2m
+hourly_data['temperature_2m'] = hourly_temperature_2m
 
 hourly_dataframe = pd.DataFrame(data = hourly_data)
 print(hourly_dataframe)
