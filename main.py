@@ -1,10 +1,46 @@
 from db_connection import *
 from openmeteo import *
 
+url = 'httpS://api.open-meteo.com/v1/forecast'
+params = {
+    'latitude': [40.01, 52.52, 42.5],
+    'longitude': [-105.27, 13.41, -103.00],
+    'current': ['temperature_2m', 'wind_direction_10m', 'wind_gusts_10m'],
+}
+
+# test_data = [
+#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 0, 'wind_direction_10m': 90},
+#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 10, 'wind_direction_10m': 91},
+#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 22, 'wind_direction_10m': 92},
+# ]
+
+def save_current_data():
+    current_reports = get_data(url, params)
+
+    site_0_current = current_reports[0].Current()
+    site_1_current = current_reports[1].Current()
+    site_2_current = current_reports[2].Current()
+
+    current_data = [
+        {'site_num': 0, 'temperature_2m': site_0_current.Variables(0).Value(), 'wind_gusts_10m': site_0_current.Variables(1).Value(), 'wind_direction_10m': site_0_current.Variables(2).Value()},
+        {'site_num': 1, 'temperature_2m': site_1_current.Variables(0).Value(), 'wind_gusts_10m': site_1_current.Variables(1).Value(), 'wind_direction_10m': site_1_current.Variables(2).Value()},
+        {'site_num': 2, 'temperature_2m': site_2_current.Variables(0).Value(), 'wind_gusts_10m': site_2_current.Variables(1).Value(), 'wind_direction_10m': site_2_current.Variables(2).Value()},
+    ]
+
+    insert_dynamic(current_data)
+    
+
 def main():
-    insert_dynamic('bruh')
-    read()
-    # print(f'{db_file}')
+    save_current_data()
+    # read()
 
 if __name__ == '__main__':
     main()
+
+
+'''
+todo:
+x1. collect data from multiple locations
+2. save data (postgres, csv, ???)
+3. schedule script (Maybe use python apscheduler?)
+'''
