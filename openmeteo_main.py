@@ -17,14 +17,15 @@ params = {
     'latitude': [40.01, 52.52, 42.5],
     'longitude': [-105.27, 13.41, -103.00],
     'current': ['temperature_2m', 'wind_direction_10m', 'wind_gusts_10m'],
-    'hourly': 'temperature_2m'
+    # 'hourly': 'temperature_2m'
 }
 responses = openmeteo.weather_api(url, params=params)
+
 site_num = 0
 for response in responses:
     print(f'-------------[Site #{site_num}]-------------')
     # response = responses[0]
-    print(f'Cordinates {response.Latitude()}°N {response.Longitude()}°E')
+    print(f'Cordinates ({response.Latitude()}°N, {response.Longitude()}°E)')
     # print(f'Elevation {response.Elevation()} m asl')
     # print(f'Timezone {response.Timezone()} {response.TimezoneAbbreviation()}')
     # print(f'Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s')
@@ -33,6 +34,7 @@ for response in responses:
     current_temperature_2m = current.Variables(0).Value()
     current_wind_direction_10m = current.Variables(1).Value()
     current_wind_gusts_10m = current.Variables(2).Value()
+    
     print(f'Current:')
     print(f'    time {current.Time()}')
     print(f'    temperature_2m {current_temperature_2m}')
@@ -57,7 +59,7 @@ for response in responses:
 
 '''
 todo:
-1. collect data from multiple locations
+x1. collect data from multiple locations
 2. save data (postgres, csv, ???)
 3. schedule script (Maybe use python apscheduler?)
 '''
