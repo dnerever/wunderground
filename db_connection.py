@@ -30,21 +30,32 @@ def test_create_insert():
     print('Automatically closed the connection')
 
 def insert(new_data):
-    # if check_db(db_file):
-    #     print('Database already exists. Exiting...')
-    #     return
-
-    # with open(schema_file, 'r') as rf:
-    #     schema = rf.read()
-
     with sqlite3.connect(db_file) as conn:
         print('Created the connection')
-        # conn.executescript(schema)
-        # print('Created the table! Now inserting')
         conn.executescript(f'''
                             insert into weather_report (site_num, temperature_2m, wind_gusts_10m, wind_direction_10m) values
                             (3, -17.5, 20, {new_data});
                             ''')
+        print('Inserted value(s) into the table!')
+
+    print('Automatically closed the connection')
+
+def insert_dynamic(new_data):
+
+    test_data = [
+        {'site_num': 3, 'temperature_2m': 123, 'wind_gusts_10m': 0, 'wind_direction_10m': 90},
+        {'site_num': 3, 'temperature_2m': 123, 'wind_gusts_10m': 10, 'wind_direction_10m': 91},
+        {'site_num': 3, 'temperature_2m': 123, 'wind_gusts_10m': 22, 'wind_direction_10m': 92},
+    ]
+    with sqlite3.connect(db_file) as conn:
+        print('Connected')
+        sql_statement = '''
+                        INSERT INTO weather_report (site_num, temperature_2m, wind_gusts_10m, wind_direction_10m) VALUES
+                        (?, ?, ?, ?);
+                        '''
+        conn.executemany(sql_statement, [(d['site_num'], d['temperature_2m'], d['wind_gusts_10m'], d['wind_direction_10m']) for d in test_data])
+
+        conn.commit()
         print('Inserted value(s) into the table!')
 
     print('Automatically closed the connection')
@@ -59,10 +70,10 @@ def read():
             report_id, site_num, wind_speed, wind_direction = row
             print(f'{report_id} {site_num} {wind_speed} {wind_direction}')
 
-def main():
-    # test_create_insert()
-    insert(100)
-    read()
+# def main():
+#     # test_create_insert()
+#     insert(100)
+#     read()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

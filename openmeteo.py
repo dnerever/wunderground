@@ -1,8 +1,3 @@
-import json
-import requests
-import os
-from pprint import pprint
-
 import openmeteo_requests
 import requests_cache
 import pandas as pd
