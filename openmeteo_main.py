@@ -1,25 +1,41 @@
 import json
 import requests
 import os
-from WunderWeather import weather
 from pprint import pprint
-import secrets
 
-def pull_data():
-    print("pulling data from wunderground")
+import openmeteo_requests
+import requests_cache
+import pandas as pd
+from retry_requests import retry
 
-def test_api():
-    # print(secrets.WUNDERGROUND_API_KEY)
-    request_url = 'http://api.wunderground.com/api/' + secrets.WUNDERGROUND_API_KEY + '/geolookup/conditions/q/MA/Boston.json'
-    response = requests.get(request_url)
-    # location = response['location']['city']
-    # temp_f = response['current_observation']['temp_f']
-    # print('current temperature in %s is: %s' % (location, temp_f))
-    print(response)
+cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
+retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
+openmeteo = openmeteo_requests.Client(session = retry_session)
 
-def main():
-    # pull_data()
-    test_api()
+url = 'httpS://api.open-meteo.com/v1/forecast'
+params = {
+    'latitude': 52.52,
+    'longitude': 13.41,
+    'hourly': 'temperature_2m'
+}
+responses = openmeteo.weather_api(url, params=params)
 
-if __name__ == '__main__':
-    main()
+reponse = responses[0]
+# print(f'Cordinates {response.Latitude()} *N {response.Longitutde()} E')
+# print(f'Elevation {response.Elevation()} m asl')
+# print(f'Timezone {response.Timezone()} {response.TimezoneAbbreviation()}')
+# print(f'Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s')
+
+hourly = responses[0].Hourly()
+hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
+
+hourly_data = {'date': pd.date_range(
+    start = pd.to_datetime(hourly.Time(), unit = 's', utc = True),
+    end = pd.to_datetime(hourly.TimeEnd(), unit = 's', utc = True),
+    freq = pd.Timedelta(seconds = hourly.Interval()),
+    inclusive = 'left'
+)}
+hourly_data["temperature_2m"] = hourly_temperature_2m
+
+hourly_dataframe = pd.DataFrame(data = hourly_data)
+print(hourly_dataframe)
