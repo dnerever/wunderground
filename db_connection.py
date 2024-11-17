@@ -61,8 +61,22 @@ def read():
                         SELECT * FROM weather_report
                        ''')
         for row in cursor.fetchall():
-            report_id, site_num, wind_speed, wind_direction = row
-            print(f'{report_id} {site_num} {wind_speed} {wind_direction}')
+            report_id, site_num, wind_speed, wind_direction, date_time = row
+            print(f'{report_id} {site_num} {wind_speed} {wind_direction} {date_time}')
+
+def create_table():
+    if check_db(db_file):
+        print('Database already exists. Exiting...')
+        return
+
+    with open(schema_file, 'r') as rf:
+        schema = rf.read()
+
+    with sqlite3.connect(db_file) as conn:
+        print('Created the connection')
+        conn.executescript(schema)
+    
+    print('Automatically closed the connection')
 
 # def main():
 #     # test_create_insert()

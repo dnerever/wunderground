@@ -1,7 +1,10 @@
 from db_connection import *
 from openmeteo import *
 
+# import datetime
+
 url = 'httpS://api.open-meteo.com/v1/forecast'
+# params for what data is being pulled, Long and Lat can be adjusted wihtout any changes 
 params = {
     'latitude': [40.01, 52.52, 42.5],
     'longitude': [-105.27, 13.41, -103.00],
@@ -31,8 +34,9 @@ def save_current_data():
     
 
 def main():
+    create_table()
     save_current_data()
-    # read()
+    read()
 
 if __name__ == '__main__':
     main()
