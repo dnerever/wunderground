@@ -31,14 +31,14 @@ def test_create_insert():
 
 def insert(new_data):
     with sqlite3.connect(db_file) as conn:
-        print('Created the connection')
+        # print('Created the connection')
         conn.executescript(f'''
                             insert into weather_report (site_num, temperature_2m, wind_gusts_10m, wind_direction_10m) values
                             (3, -17.5, 20, {new_data});
                             ''')
         print('Inserted value(s) into the table!')
 
-    print('Automatically closed the connection')
+    # print('Automatically closed the connection')
 
 def insert_dynamic(new_data):
     with sqlite3.connect(db_file) as conn:

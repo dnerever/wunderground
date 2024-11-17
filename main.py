@@ -1,7 +1,8 @@
 from db_connection import *
 from openmeteo import *
 
-# import datetime
+import schedule
+import time
 
 url = 'httpS://api.open-meteo.com/v1/forecast'
 # params for what data is being pulled, Long and Lat can be adjusted wihtout any changes 
@@ -10,12 +11,6 @@ params = {
     'longitude': [-105.27, 13.41, -103.00],
     'current': ['temperature_2m', 'wind_direction_10m', 'wind_gusts_10m'],
 }
-
-# test_data = [
-#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 0, 'wind_direction_10m': 90},
-#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 10, 'wind_direction_10m': 91},
-#     {'site_num': 1, 'temperature_2m': 123, 'wind_gusts_10m': 22, 'wind_direction_10m': 92},
-# ]
 
 def save_current_data():
     current_reports = get_data(url, params)
@@ -29,14 +24,17 @@ def save_current_data():
         {'site_num': 1, 'temperature_2m': site_1_current.Variables(0).Value(), 'wind_gusts_10m': site_1_current.Variables(1).Value(), 'wind_direction_10m': site_1_current.Variables(2).Value()},
         {'site_num': 2, 'temperature_2m': site_2_current.Variables(0).Value(), 'wind_gusts_10m': site_2_current.Variables(1).Value(), 'wind_direction_10m': site_2_current.Variables(2).Value()},
     ]
-
     insert_dynamic(current_data)
     
-
 def main():
-    create_table()
-    save_current_data()
-    read()
+    # create_table()
+    # save_current_data()
+    # read()
+    schedule.every(5).minutes.do(save_current_data)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()
@@ -45,6 +43,6 @@ if __name__ == '__main__':
 '''
 todo:
 x1. collect data from multiple locations
-2. save data (postgres, csv, ???)
-3. schedule script (Maybe use python apscheduler?)
+x2. save data (postgres, csv, ???)
+x3. schedule script (Maybe use python apscheduler?)
 '''
