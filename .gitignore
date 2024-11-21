@@ -2,3 +2,5 @@ secrets.py
 
 /wunderground/
 /__pycache__/
+
+.cache.sqlite
